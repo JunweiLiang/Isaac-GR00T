@@ -328,14 +328,22 @@ class LeRobotEpisodeLoader:
         original_df = pd.read_parquet(parquet_path)
         loaded_df = pd.DataFrame()
         """
+        # Define universal kwargs for formatting paths
+        format_kwargs = {
+            "episode_chunk": chunk_idx,
+            "chunk_index": chunk_idx,
+            "episode_index": episode_index,
+            "file_index": episode_index
+        }
 
+        # --- FIX 2: Dynamically find chunk parquet & filter by episode ---
         chunk_dir = self.dataset_path / "data" / f"chunk-{chunk_idx:03d}"
         if chunk_dir.exists():
-            # Grab the actual parquet file in the folder (ignoring pattern mismatches)
             parquet_files = list(chunk_dir.glob("*.parquet"))
-            parquet_path = parquet_files[0] if parquet_files else self.dataset_path / self.data_path_pattern.format(episode_chunk=chunk_idx, episode_index=episode_index)
+            fallback_path = self.dataset_path / self.data_path_pattern.format(**format_kwargs)
+            parquet_path = parquet_files[0] if parquet_files else fallback_path
         else:
-            parquet_path = self.dataset_path / self.data_path_pattern.format(episode_chunk=chunk_idx, episode_index=episode_index)
+            parquet_path = self.dataset_path / self.data_path_pattern.format(**format_kwargs)
 
         original_df = pd.read_parquet(parquet_path)
 
@@ -418,15 +426,25 @@ class LeRobotEpisodeLoader:
             # Construct video file path using pattern
             """
             video_pattern = self.video_path_pattern
-            test_filename = video_pattern.format(episode_chunk=chunk_idx, video_key=original_key, episode_index=episode_index)
-            if not (self.dataset_path / test_filename).exists() and "episode_" in video_pattern:
-                video_pattern = video_pattern.replace("episode_{episode_index:06d}", "file-{episode_index:03d}")
+            format_kwargs = {
+                "episode_chunk": chunk_idx,
+                "chunk_index": chunk_idx,
+                "video_key": original_key,
+                "episode_index": episode_index,
+                "file_index": episode_index
+            }
 
-            video_filename = video_pattern.format(
-                episode_chunk=chunk_idx,
-                video_key=original_key,
-                episode_index=episode_index,
-            )
+            # Test if the default pattern works
+            test_filename = video_pattern.format(**format_kwargs)
+
+            # If the file isn't there, fix the prefix (episode_ -> file-)
+            if not (self.dataset_path / test_filename).exists():
+                if "episode_{episode_index:06d}" in video_pattern:
+                    video_pattern = video_pattern.replace("episode_{episode_index:06d}", "file-{episode_index:03d}")
+                elif "episode_{file_index:06d}" in video_pattern:
+                    video_pattern = video_pattern.replace("episode_{file_index:06d}", "file-{file_index:03d}")
+
+            video_filename = video_pattern.format(**format_kwargs)
             video_path = self.dataset_path / video_filename
 
             # Decode video frames at specified timestamps
