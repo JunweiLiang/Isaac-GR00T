@@ -416,8 +416,8 @@ class LeRobotEpisodeLoader:
             )
             video_path = self.dataset_path / video_filename
             # Construct video file path using pattern
-            video_pattern = self.video_path_pattern
             """
+            video_pattern = self.video_path_pattern
             test_filename = video_pattern.format(episode_chunk=chunk_idx, video_key=original_key, episode_index=episode_index)
             if not (self.dataset_path / test_filename).exists() and "episode_" in video_pattern:
                 video_pattern = video_pattern.replace("episode_{episode_index:06d}", "file-{episode_index:03d}")
