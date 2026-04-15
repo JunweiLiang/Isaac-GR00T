@@ -317,7 +317,9 @@ class LeRobotEpisodeLoader:
         # Load raw parquet data using chunking pattern
         chunk_idx = episode_index // self.chunk_size
         parquet_filename = self.data_path_pattern.format(
-            episode_chunk=chunk_idx, episode_index=episode_index, chunk_index=chunk_idx
+            episode_chunk=chunk_idx, episode_index=episode_index,
+            chunk_index=chunk_idx,
+            file_index=episode_index,
         )
         parquet_path = self.dataset_path / parquet_filename
         original_df = pd.read_parquet(parquet_path)
@@ -390,7 +392,7 @@ class LeRobotEpisodeLoader:
                 chunk_index=chunk_idx,
                 video_key=original_key,
                 episode_index=episode_index,
-
+                file_index=episode_index,
             )
             video_path = self.dataset_path / video_filename
 
@@ -447,6 +449,7 @@ class LeRobotEpisodeLoader:
                 episode_chunk=chunk_idx,
                 chunk_index=chunk_idx,
                 episode_index=episode_index,
+                file_index=episode_index,
                 mask_key=original_key,
                 video_key=original_key,
             )
