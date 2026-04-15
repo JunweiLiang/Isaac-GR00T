@@ -49,4 +49,4 @@ g1_wbc_config = {
     ),
 }
 
-register_modality_config(g1_wbc_config, embodiment_tag=EmbodimentTag.G1_DEX3_HOMIE)
+register_modality_config(g1_wbc_config, embodiment_tag=EmbodimentTag.NEW_EMBODIMENT)
