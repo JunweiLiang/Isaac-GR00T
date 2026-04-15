@@ -60,8 +60,6 @@ class EmbodimentTag(Enum):
     Any new embodiment.
     """
 
-    G1_DEX3_GRIPPER_HOMIE = "g1_dex3_gripper_homie"
-    """
-    The Unitree G1 robot.
-    """
+    #G1_DEX3_GRIPPER_HOMIE = "g1_dex3_gripper_homie"
+
 
