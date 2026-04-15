@@ -179,9 +179,7 @@ class LeRobotEpisodeLoader:
         self.data_path_pattern = self.info_meta["data_path"]
         self.video_path_pattern = self.info_meta.get("video_path")
         self.mask_path_pattern = self.info_meta.get("mask_path")
-        # --- FIX 1: Support modern chunk size key ---
-        #self.chunk_size = self.info_meta["chunks_size"]
-        self.chunk_size = self.info_meta.get("chunks_size", self.info_meta.get("episode_chunk_size", 1000))
+        self.chunk_size = self.info_meta["chunks_size"]
         self.fps = self.info_meta.get("fps", 30)
 
     def get_episode_lengths(self):
@@ -318,39 +316,11 @@ class LeRobotEpisodeLoader:
         """
         # Load raw parquet data using chunking pattern
         chunk_idx = episode_index // self.chunk_size
-
-        # --- FIX 2: Dynamically find chunk parquet & filter by episode ---
-        """
         parquet_filename = self.data_path_pattern.format(
             episode_chunk=chunk_idx, episode_index=episode_index
         )
         parquet_path = self.dataset_path / parquet_filename
         original_df = pd.read_parquet(parquet_path)
-        loaded_df = pd.DataFrame()
-        """
-        # Define universal kwargs for formatting paths
-        format_kwargs = {
-            "episode_chunk": chunk_idx,
-            "chunk_index": chunk_idx,
-            "episode_index": episode_index,
-            "file_index": episode_index
-        }
-
-        # --- FIX 2: Dynamically find chunk parquet & filter by episode ---
-        chunk_dir = self.dataset_path / "data" / f"chunk-{chunk_idx:03d}"
-        if chunk_dir.exists():
-            parquet_files = list(chunk_dir.glob("*.parquet"))
-            fallback_path = self.dataset_path / self.data_path_pattern.format(**format_kwargs)
-            parquet_path = parquet_files[0] if parquet_files else fallback_path
-        else:
-            parquet_path = self.dataset_path / self.data_path_pattern.format(**format_kwargs)
-
-        original_df = pd.read_parquet(parquet_path)
-
-        # CRITICAL: Isolate the specific episode from the chunked dataframe
-        if "episode_index" in original_df.columns:
-            original_df = original_df[original_df["episode_index"] == episode_index]
-
         loaded_df = pd.DataFrame()
 
         # Process language annotations (convert task indices to task strings)
@@ -414,37 +384,12 @@ class LeRobotEpisodeLoader:
                 f"Original key {original_key} not found in feature config"
             )
 
-            # --- FIX 3: Adapt to modern video filenames ---
-            """
             # Construct video file path using pattern
             video_filename = self.video_path_pattern.format(
                 episode_chunk=chunk_idx,
                 video_key=original_key,
                 episode_index=episode_index,
             )
-            video_path = self.dataset_path / video_filename
-            # Construct video file path using pattern
-            """
-            video_pattern = self.video_path_pattern
-            format_kwargs = {
-                "episode_chunk": chunk_idx,
-                "chunk_index": chunk_idx,
-                "video_key": original_key,
-                "episode_index": episode_index,
-                "file_index": episode_index
-            }
-
-            # Test if the default pattern works
-            test_filename = video_pattern.format(**format_kwargs)
-
-            # If the file isn't there, fix the prefix (episode_ -> file-)
-            if not (self.dataset_path / test_filename).exists():
-                if "episode_{episode_index:06d}" in video_pattern:
-                    video_pattern = video_pattern.replace("episode_{episode_index:06d}", "file-{episode_index:03d}")
-                elif "episode_{file_index:06d}" in video_pattern:
-                    video_pattern = video_pattern.replace("episode_{file_index:06d}", "file-{file_index:03d}")
-
-            video_filename = video_pattern.format(**format_kwargs)
             video_path = self.dataset_path / video_filename
 
             # Decode video frames at specified timestamps
@@ -549,10 +494,6 @@ class LeRobotEpisodeLoader:
     ) -> list[str]:
         if lang_key == "task":
             meta_language = random.choice(episode_meta["tasks"])
-            # --- FIX 4: Convert integer task to string for tokenization ---
-            if isinstance(meta_language, int):
-                meta_language = self.tasks_map.get(meta_language, str(meta_language))
-
             new_languages = [meta_language] * nframes
         elif lang_key == "sub_task":
             action_delta_indices = self.modality_configs["action"].delta_indices
