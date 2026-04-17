@@ -23,8 +23,8 @@
 
         junweil@office-precognition:~/projects/wbc_manipulation/Isaac-GR00T$ uv run python gr00t/eval/open_loop_eval.py     --dataset-path ~/.cache/huggingface/lerobot/junweiliang/wbc_pick_up_object_from_ground_val0.1/  --embodiment-tag NEW_EMBODIMENT     --model-path experiments/my_wbc_pick_up_object_from_ground_bs64_s10k/checkpoint-10000/     --traj-ids 0 1 2 3 4 5     --action-horizon 16 --save-plot-path experiments/my_wbc_pick_up_object_from_ground_bs64_s10k/open_loop_val_ep0-5.jpg --steps 1000
 
-            INFO:root:Average MSE across all trajs: 0.0024767746217548847
-            INFO:root:Average MAE across all trajs: 0.01650149933993816
+            INFO:root:Average MSE across all trajs: 0.002199870301410556
+            INFO:root:Average MAE across all trajs: 0.01576397754251957
     ```
     + 实机测试前，先看看训练数据长什么样，尽量把环境布置一样
     ```
