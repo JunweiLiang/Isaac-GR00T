@@ -61,9 +61,9 @@
                 $ sudo apt-get install -y cuda-toolkit-12-6 pybind11-dev libgmpxx4ldbl libgmp-dev
 
                 $ vi ~/.bashrc
-export CUDA_HOME=/usr/local/cuda-12.6
-export PATH=$CUDA_HOME/bin:$PATH
-export LD_LIBRARY_PATH=$CUDA_HOME/lib64:$LD_LIBRARY_PATH
+                export CUDA_HOME=/usr/local/cuda-12.6
+                export PATH=$CUDA_HOME/bin:$PATH
+                export LD_LIBRARY_PATH=$CUDA_HOME/lib64:$LD_LIBRARY_PATH
 
             # 3. gr00t
                 junweil@precognition-gpu3:~/projects/wbc_manipulation$ git clone https://github.com/JunweiLiang/Isaac-GR00T
